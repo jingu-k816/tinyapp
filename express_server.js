@@ -47,6 +47,13 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${randomShortURL}`);
 });
 
+app.post("/urls/:shortURL/delete", (req, res) => {
+  const shortURLCode = req.params.shortURL
+  delete urlDatabase[shortURLCode];
+
+  res.redirect('/urls');
+});
+
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
