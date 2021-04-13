@@ -20,7 +20,7 @@ const generateRandomString = () => {
 };
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
+  b2xVn2: "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com",
 };
 
@@ -30,10 +30,6 @@ app.get("/", (req, res) => {
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
-});
-
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
 app.get("/urls", (req, res) => {
@@ -48,8 +44,16 @@ app.post("/urls", (req, res) => {
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  const shortURLCode = req.params.shortURL
+  const shortURLCode = req.params.shortURL;
   delete urlDatabase[shortURLCode];
+
+  res.redirect("/urls");
+});
+
+app.post("/urls/:shortURL/update", (req, res) => {
+  const shortURLCode = req.params.shortURL;
+  const longURL = req.body.longURL;
+  urlDatabase[shortURLCode] = longURL;
 
   res.redirect('/urls');
 });
