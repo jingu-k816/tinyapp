@@ -4,10 +4,10 @@
 const emailCheck = (email, users) => {
   for (const key in users) {
     if (users[key].email === email) {
-      return true;
+      return key;
     }
   }
-  return false;
+  return undefined;
 };
 
 const generateRandomString = () => {
