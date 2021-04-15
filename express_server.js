@@ -9,7 +9,7 @@ const saltRounds = 10;
 /************************************************************* */
 //Middleware
 app.use(cookieSession({
-  name: 'session', 
+  name: 'session',
   keys: ['key1', 'key2']
 }));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -70,13 +70,13 @@ const lookUpUser = (email, password) => {
 
 const urlsForUser = (id) => {
   const urls = {};
-  for(const key in urlDatabase) {
-    if(urlDatabase[key].userID === id){
+  for (const key in urlDatabase) {
+    if (urlDatabase[key].userID === id) {
       urls[key] = urlDatabase[key];
     }
   }
   return urls;
-}
+};
 /******************************************************** */
 //Routes
 
@@ -108,7 +108,7 @@ app.post("/urls", (req, res) => {
 
 app.post("/urls/:shortURL/delete", (req, res) => {
   const shortURLCode = req.params.shortURL;
-  if(users[req.session["user_id"]].id === urlDatabase[shortURLCode].userID){
+  if (users[req.session["user_id"]].id === urlDatabase[shortURLCode].userID) {
     delete urlDatabase[shortURLCode];
     res.redirect("/urls");
   }
@@ -119,10 +119,10 @@ app.post("/urls/:shortURL/update", (req, res) => {
   const shortURLCode = req.params.shortURL;
   const longURL = req.body.longURL;
  
-  if(users[req.session["user_id"]].id === urlDatabase[shortURLCode].userID){
+  if (users[req.session["user_id"]].id === urlDatabase[shortURLCode].userID) {
     urlDatabase[shortURLCode].longURL = longURL;
     res.redirect("/urls");
-  }else{
+  } else {
     res.send('only creator can change the URL');
   }
 });
@@ -131,7 +131,7 @@ app.get("/urls/new", (req, res) => {
   const templateVars = {
     username: users[req.session["user_id"]],
   };
-  if(!templateVars.username){
+  if (!templateVars.username) {
     res.redirect('../login');
   }
 
@@ -144,7 +144,7 @@ app.get("/urls/:shortURL", (req, res) => {
     longURL: urlDatabase[req.params.shortURL].longURL,
     username: users[req.session["user_id"]],
   };
-  if(!templateVars.username){
+  if (!templateVars.username) {
     res.redirect('../login');
   }
   res.render("urls_show", templateVars);
@@ -185,7 +185,7 @@ app.post("/logout", (req, res) => {
 app.get("/register", (req, res) => {
   const templateVars = {
     username: users[req.session["user_id"]]
-  }
+  };
   res.render("register", templateVars);
 });
 
