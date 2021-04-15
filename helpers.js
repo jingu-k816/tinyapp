@@ -1,15 +1,5 @@
 /*********************************************************** */
 //Helper Functions
-
-const emailCheck = (email, users) => {
-  for (const key in users) {
-    if (users[key].email === email) {
-      return key;
-    }
-  }
-  return undefined;
-};
-
 const generateRandomString = () => {
   let randomString = "";
   const chars =
@@ -23,13 +13,13 @@ const generateRandomString = () => {
   return randomString;
 };
 
-const lookUpUser = (email, password, users) => {
+const emailCheck = (email, users) => {
   for (const key in users) {
-    if (users[key].email === email && bcrypt.compareSync(password, users[key].password)) {
+    if (users[key].email === email) {
       return key;
     }
   }
-  return false;
+  return undefined;
 };
 
 const urlsForUser = (id, urlDatabase) => {
@@ -41,4 +31,5 @@ const urlsForUser = (id, urlDatabase) => {
   }
   return urls;
 };
-module.exports = {emailCheck, urlsForUser, generateRandomString, lookUpUser};
+
+module.exports = {emailCheck, urlsForUser, generateRandomString};
