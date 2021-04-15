@@ -10,7 +10,7 @@
       <% if (typeof username === "undefined") { %> 
         <a class="nav-item nav-link" href="/login">Login</a>
         <a class="nav-item nav-link" href="/register">Create New Account</a>
-     <% } else {%>
+      <% } else {%>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
         <form class="form-inline my-2 my-lg-0" method="POST" action="/logout">
           <div>Logged In As: <%= username.email %> </div>  
