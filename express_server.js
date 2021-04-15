@@ -5,7 +5,7 @@ const bodyParser = require("body-parser");
 const cookieSession = require("cookie-session");
 const bcrypt  = require("bcrypt");
 const saltRounds = 10;
-const {emailCheck, lookUpUser, urlsForUser, generateRandomString} = require("./helpers.js");
+const {emailCheck, urlsForUser, generateRandomString} = require("./helpers.js");
 
 /************************************************************* */
 //Middleware
@@ -49,6 +49,7 @@ app.get("/urls.json", (req, res) => {
 
 app.get("/urls", (req, res) => {
   const filteredURL = urlsForUser(req.session["user_id"], urlDatabase);
+  console.log(filteredURL);
   const templateVars = {
     urls: filteredURL,
     username: users[req.session["user_id"]]
@@ -122,16 +123,13 @@ app.get("/login", (req, res) => {
 app.post("/login", (req, res) => {
   const userEmail = req.body.email;
   const userPassword = req.body.password;
-  const userId = lookUpUser(userEmail, userPassword, users);
+  const userId = emailCheck(userEmail, users);
 
-  if (!emailCheck(userEmail, users)) {
+  if (!userId) {
     return res.status(403).send("Error! Email cannot be found.");
-  } else if (!userId) {
-    return res
-      .status(403)
-      .send("Error! Password is incorrect.");
+  } else if(!bcrypt.compareSync(userPassword, users[userId].password)) {
+    return res.status(403).send("Error! Password is incorrect.");
   }
-
   
   req.session["user_id"] = userId;
   res.redirect("/urls");
