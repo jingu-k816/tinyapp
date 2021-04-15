@@ -30,6 +30,15 @@ const emailCheck = (email, users) => {
   }
   return false;
 };
+
+const lookUpUser = (email, password) => {
+  for (const key in users) {
+    if (users[key].email === email && users[key].password === password) {
+      return key;
+    }
+  }
+  return false;
+};
 /*********************************************************** */
 //Databse
 const users = {
@@ -46,8 +55,8 @@ const users = {
 };
 
 const urlDatabase = {
-  b2xVn2: "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com",
+  b2xVn2:{longURL: "http://www.lighthouselabs.ca", userID: 'aJ48lw'},
+  i3BoGr:{longURL: "http://www.google.com", userID: 'aj481W'}
 };
 
 /******************************************************** */
@@ -66,13 +75,12 @@ app.get("/urls", (req, res) => {
     urls: urlDatabase,
     username: users[req.cookies["user_id"]]
   };
-  console.log('Get URLS: ', templateVars);
   res.render("urls_index", templateVars);
 });
 
 app.post("/urls", (req, res) => {
   const randomShortURL = generateRandomString();
-  urlDatabase[randomShortURL] = req.body.longURL;
+  urlDatabase[randomShortURL].longURL = req.body.longURL;
   res.redirect(`/urls/${randomShortURL}`);
 });
 
@@ -95,20 +103,24 @@ app.get("/urls/new", (req, res) => {
   const templateVars = {
     username: users[req.cookies["user_id"]],
   };
+  if(!templateVars.username){
+    res.redirect('../login');
+  }
+
   res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = {
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL],
+    longURL: urlDatabase[req.params.shortURL].longURL,
     username: users[req.cookies["user_id"]],
   };
   res.render("urls_show", templateVars);
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
+  const longURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
 });
 
@@ -116,14 +128,6 @@ app.get("/login", (req, res) => {
   res.render("login");
 });
 
-const lookUpUser = (email, password) => {
-  for (const key in users) {
-    if (users[key].email === email && users[key].password === password) {
-      return key;
-    }
-  }
-  return false;
-};
 app.post("/login", (req, res) => {
   const userEmail = req.body.email;
   const userPassword = req.body.password;
