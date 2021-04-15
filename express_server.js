@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 const cookieSession = require("cookie-session");
 const bcrypt  = require("bcrypt");
 const saltRounds = 10;
+const {emailCheck, lookUpUser, urlsForUser, generateRandomString} = require("./helpers.js");
 
 /************************************************************* */
 //Middleware
@@ -14,6 +15,7 @@ app.use(cookieSession({
 }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
+
 /************************************************************* */
 //Databse
 const users = {
@@ -34,49 +36,6 @@ const urlDatabase = {
   i3BoGr:{longURL: "http://www.google.com", userID: 'aJ48lW'},
 };
 
-
-/*********************************************************** */
-//Helper Functions
-const generateRandomString = () => {
-  let randomString = "";
-  const chars =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-  for (let i = 0; i <= 5; i++) {
-    let randomIndex = Math.floor(Math.random() * chars.length);
-    let randomValue = chars[randomIndex];
-    randomString += randomValue;
-  }
-  return randomString;
-};
-
-const emailCheck = (email, users) => {
-  for (const key in users) {
-    if (users[key].email === email) {
-      return true;
-    }
-  }
-  return false;
-};
-
-const lookUpUser = (email, password) => {
-  for (const key in users) {
-    if (users[key].email === email && bcrypt.compareSync(password, users[key].password)) {
-      return key;
-    }
-  }
-  return false;
-};
-
-const urlsForUser = (id) => {
-  const urls = {};
-  for (const key in urlDatabase) {
-    if (urlDatabase[key].userID === id) {
-      urls[key] = urlDatabase[key];
-    }
-  }
-  return urls;
-};
 /******************************************************** */
 //Routes
 
@@ -89,7 +48,7 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const filteredURL = urlsForUser(req.session["user_id"]);
+  const filteredURL = urlsForUser(req.session["user_id"], urlDatabase);
   const templateVars = {
     urls: filteredURL,
     username: users[req.session["user_id"]]
@@ -108,18 +67,19 @@ app.post("/urls", (req, res) => {
 
 app.post("/urls/:shortURL/delete", (req, res) => {
   const shortURLCode = req.params.shortURL;
-  if (users[req.session["user_id"]].id === urlDatabase[shortURLCode].userID) {
+  if (users[req.session["user_id"]] && users[req.session["user_id"]].id === urlDatabase[shortURLCode].userID) {
     delete urlDatabase[shortURLCode];
     res.redirect("/urls");
+  }else{
+    res.send('only the creator can change the URL');
   }
-  res.send('Only creator can change the URL');
 });
 
 app.post("/urls/:shortURL/update", (req, res) => {
   const shortURLCode = req.params.shortURL;
   const longURL = req.body.longURL;
  
-  if (users[req.session["user_id"]].id === urlDatabase[shortURLCode].userID) {
+  if (users[req.session["user_id"]] && users[req.session["user_id"]].id === urlDatabase[shortURLCode].userID) {
     urlDatabase[shortURLCode].longURL = longURL;
     res.redirect("/urls");
   } else {
@@ -162,7 +122,7 @@ app.get("/login", (req, res) => {
 app.post("/login", (req, res) => {
   const userEmail = req.body.email;
   const userPassword = req.body.password;
-  const userId = lookUpUser(userEmail, userPassword);
+  const userId = lookUpUser(userEmail, userPassword, users);
 
   if (!emailCheck(userEmail, users)) {
     return res.status(403).send("Error! Email cannot be found.");
