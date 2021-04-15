@@ -3,12 +3,15 @@ const app = express();
 const PORT = 8080;
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
-const e = require("express");
+const bcrypt  = require("bcrypt");
+const saltRounds = 10;
 
+/************************************************************* */
+//Middleware
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
-/*************************************************** */
+/************************************************************* */
 //Databse
 const users = {
   userRandomID: {
@@ -55,7 +58,7 @@ const emailCheck = (email, users) => {
 
 const lookUpUser = (email, password) => {
   for (const key in users) {
-    if (users[key].email === email && users[key].password === password) {
+    if (users[key].email === email && bcrypt.compareSync(password, users[key].password)) {
       return key;
     }
   }
@@ -198,8 +201,9 @@ app.post("/register", (req, res) => {
     users[userRandomID] = {
       id: userRandomID,
       email: userEmail,
-      password: userPassword,
+      password: bcrypt.hashSync(userPassword, saltRounds)
     };
+  
 
     res.cookie("user_id", userRandomID);
     res.redirect("/urls");
