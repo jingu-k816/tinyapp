@@ -1,9 +1,8 @@
-/*********************************************************** */
-//Helper Functions
+/***************************Helper Functions for TinyAPP******************************** */
+
 const generateRandomString = () => {
   let randomString = "";
-  const chars =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
   for (let i = 0; i <= 5; i++) {
     let randomIndex = Math.floor(Math.random() * chars.length);
